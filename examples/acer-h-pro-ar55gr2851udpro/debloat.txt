@@ -35,6 +35,11 @@
 #   launcher\build-and-install.ps1 -StockLauncher none -InputKeyService -HomeKeyService
 # The script's final "Home resolves to launcherx" check fails here by design; enable the two services
 # (enabled_accessibility_services) by hand if it stops before them.
+# Screensaver: with dreamx (Ambient mode) off, Android falls back to Colors. Set the launcher's Clock instead:
+#   settings put secure screensaver_components com.gathin.tvhome/.ClockDream
+# It starts after screen_off_timeout (600000 = 10 min). `cmd dreams` needs root here and the Settings
+# screensaver page hangs without dreamx, so to preview it lower screen_off_timeout to 15000 on the
+# launcher's Home screen, wait, then set it back.
 # The launcher half is NOT safe here: com.google.android.tungsten.setupwraith comes back enabled at
 # boot, its RecoveryActivity takes Home and system_server crash-loops (TV drops off Wi-Fi) until
 # `pm enable --user 0 com.google.android.apps.tv.launcherx`. Keep launcherx and use Google TV's own

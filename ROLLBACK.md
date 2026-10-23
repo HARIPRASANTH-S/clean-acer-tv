@@ -17,7 +17,7 @@ firmware UKR1.260308. Factory state recorded 19 Oct 2026, before any change.
 | 4 | 16 apps disabled (ads, demo overlays, TV Manager, meeting mode, mirroring apps, Assistant, TalkBack, Ambient mode, Play Games, Feedback, Calendar sync) | `pm disable-user` | `pm enable` each one; list in [`debloat.txt`](examples/acer-h-pro-ar55gr2851udpro/debloat.txt) (factory: nothing disabled) |
 | 5 | 9 streaming apps blocked from running in the background (YouTube, YouTube Music, Netflix, Prime Video, SonyLIV, JioHotstar, ZEE5, Sun NXT, Google TV) | App-ops `RUN_ANY_IN_BACKGROUND ignore` | Set back to `allow` |
 | 6 | Animations sped up to 0.5x | Settings → global `*_animation_scale` | Set to 1.0 (factory) |
-| 7 | Screensaver moved off Ambient mode (it was disabled with the debloat) | Settings → secure `screensaver_components` | `com.google.android.apps.tv.dreamx/.service.Backdrop` (factory) |
+| 7 | Screensaver set to the launcher's **Clock** screensaver (`com.gathin.tvhome/.ClockDream`), after 10 minutes idle. Ambient mode was disabled with the debloat, and Android had fallen back to "Colors" | Settings → secure `screensaver_components` | `com.google.android.apps.tv.dreamx/.service.Backdrop` (factory) |
 | 8 | Second user profile (`new_user`, id 10) removed | Android users | **Cannot be undone**, re-create it |
 | 9 | USB debugging switched on, the computer's and the launcher's adb keys trusted | Developer options | Revoke authorizations, switch debugging off |
 
@@ -74,6 +74,7 @@ Use `tools/tv.py` with `TV_HOST` set (PowerShell: `$env:TV_HOST='192.168.0.100'`
 | Keep the new home but stop the automatic re-apply | Rebuild the launcher with the three `keeper_*` entries in `launcher/app/src/main/res/values/config.xml` emptied/false, reinstall, then revoke debugging keys and re-trust only the computer |
 | Get one app back (e.g. Google Assistant) | `tools/venv/Scripts/python.exe -I tools/tv.py "pm enable com.google.android.katniss"`, and remove it from `keeper_disable` in `config.xml` and rebuild, or the keeper turns it off again at the next boot |
 | Let one streaming app run in the background again | `tools/venv/Scripts/python.exe -I tools/tv.py "cmd appops set com.netflix.ninja RUN_ANY_IN_BACKGROUND allow"` (also remove it from `keeper_no_background`) |
+| Keep the new home but use Android's "Colors" screensaver | `tools/venv/Scripts/python.exe -I tools/tv.py "settings put secure screensaver_components com.android.dreams.basic/com.android.dreams.basic.Colors"` |
 | Normal animation speed | `tools/venv/Scripts/python.exe -I tools/tv.py "settings put global window_animation_scale 1.0; settings put global transition_animation_scale 1.0; settings put global animator_duration_scale 1.0"` |
 
 ## If something goes wrong
