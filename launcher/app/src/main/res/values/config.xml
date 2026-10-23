@@ -17,12 +17,12 @@
 
     <!-- Apps never shown as tiles (e.g. the Live TV app, which the Inputs menu already covers). -->
     <string-array name="hidden_apps">
-        <item>com.mediatek.wwtv.tvcenter</item>
+        <item>com.realtek.tv</item>
         <item>com.mitv.gallery</item>
     </string-array>
 
     <!-- The TV's Live TV / tuner app, offered at the end of the Inputs menu. Leave empty to omit. -->
-    <string name="live_tv_package" translatable="false">com.mediatek.wwtv.tvcenter</string>
+    <string name="live_tv_package" translatable="false">com.realtek.tv</string>
 
     <!-- Some TVs give their Live TV app no leanback entry point at all, so `live_tv_package` above
          resolves to nothing (TCL Android TV 9 on China-market sets is one). This action is then sent
@@ -61,4 +61,44 @@
     <!-- Module cards: an app that declares a card (docs/specs/card.md) can stand in for its tile with its own
          label, caption and glow colour, once you answer Show on the prompt. false: never look for cards or ask. -->
     <bool name="module_cards">true</bool>
+
+    <!-- Debloat keeper, for firmwares that re-enable disabled apps at every power-on (Acer/MOKA Google TV,
+         see examples/acer-h-pro-ar55gr2851udpro). After each boot the launcher connects to the TV's own
+         adb on 127.0.0.1 and puts these back; it needs USB debugging left on, and the first run shows
+         "Allow USB debugging?" on the TV (tick Always allow). Leave all three empty/false to switch it off. -->
+    <!-- Packages to keep disabled (pm disable-user). Keep in step with your debloat.txt. -->
+    <string-array name="keeper_disable">
+        <item>com.apps.esticker</item>
+        <item>com.apps.esticker3</item>
+        <item>com.apps.mk.wd</item>
+        <item>com.apps.biz.mt</item>
+        <item>com.mk.tv.meeting.service</item>
+        <item>com.apps.tvmanager</item>
+        <item>com.mk.tv.timeclock</item>
+        <item>com.realtek.leanbacklauncher.partnercustomizer</item>
+        <item>com.google.android.feedback</item>
+        <item>com.google.android.play.games</item>
+        <item>com.google.android.syncadapters.calendar</item>
+        <item>com.google.android.marvin.talkback</item>
+        <item>com.google.android.apps.tv.dreamx</item>
+        <item>com.google.android.katniss</item>
+        <item>com.creative.fastscreen.tv</item>
+        <item>com.apps.scast</item>
+    </string-array>
+    <!-- Apps that may not run in the background (appops RUN_ANY_IN_BACKGROUND ignore); they still open and
+         play normally. Saves RAM on 2 GB sets where streaming apps idle for the stock home's rows. -->
+    <string-array name="keeper_no_background">
+        <item>com.google.android.youtube.tv</item>
+        <item>com.google.android.youtube.tvmusic</item>
+        <item>com.netflix.ninja</item>
+        <item>com.amazon.amazonvideo.livingroom</item>
+        <item>com.sonyliv</item>
+        <item>in.startv.hotstar</item>
+        <item>com.graymatrix.did</item>
+        <item>com.suntv.sunnxt</item>
+        <item>com.google.android.videos</item>
+    </string-array>
+    <!-- Make this launcher Home again if the firmware gives Home back to the stock launcher. -->
+    <bool name="keeper_keep_home">true</bool>
+    <integer name="keeper_adb_port">5555</integer>
 </resources>

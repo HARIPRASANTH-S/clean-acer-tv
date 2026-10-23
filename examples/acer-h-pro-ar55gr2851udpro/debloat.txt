@@ -1,0 +1,79 @@
+# Acer H PRO Series 55" 4K Google TV (AR55GR2851UDPRO), India
+# Built by Indkal on a MOKA (MK) platform: model R4G, device R4_GTV, Realtek RTD2851M, 2 GB RAM.
+# Google TV 14 (SDK 34), firmware UKR1.260308.
+#
+# Apply:   TV_HOST=<tv ip> tools/disable.sh examples/acer-h-pro-ar55gr2851udpro/debloat.txt
+# Undo:    TV_HOST=<tv ip> tools/restore.sh examples/acer-h-pro-ar55gr2851udpro/debloat.txt com.google.android.apps.tv.launcherx
+# Everything is DISABLED, not uninstalled. Comment out any line you want to keep.
+#
+# Stock launcher: com.google.android.apps.tv.launcherx. Live TV app: com.realtek.tv.
+# USB debugging alone opened port 5555 on this firmware; no wireless pairing was needed.
+# Nothing was disabled from the factory (pm list packages -d was empty).
+#
+# WARNING, checked on the TV over three reboots: this firmware puts every package back at each boot.
+# The TV cold-boots on every power-on (settings global boot_count was 1139), and `pm disable-user` and
+# even `pm uninstall -k --user 0` are both undone. Only com.apps.mk.wd and
+# com.realtek.leanbacklauncher.partnercustomizer stay disabled, plus the animation scales (settings).
+# Re-run this list after each power-on if you want the rest off for that session.
+# Why (checked 23 Oct): it is not a reset. After boot most packages read enabled=1 (explicitly ENABLED,
+# not 0/default) in `dumpsys package`, so a vendor routine turns them back on. RtkKeyInterceptService_RTK
+# and RtkMenuSliceProvider carry an `enableBasicModeApp` list (KATNISS, TVMANAGER, FASTCASTTV,
+# TVMEETINGMODE, S_CHANNEL, OTA, RCUUPDATE, YouTube, Netflix, Prime) tied to Google TV "Basic mode", and
+# com.apps.sys has a HideApkReceiver. Both run as android.uid.system, so this cannot be stopped without root.
+# What helps and is cheap to redo: the real lag here is RAM. 2 GB with YouTube (~250 MB), SonyLIV and
+# Netflix (~90 MB each) idling for the home rows had kswapd0 at ~97% CPU. Blocking background runs keeps
+# the apps working when opened:  cmd appops set <pkg> RUN_ANY_IN_BACKGROUND ignore   (undo: allow).
+# With this list plus that, MemAvailable went from ~307 MB to ~620 MB and ~200 MB of swap came back.
+#
+# Working setup (23 Oct, survived a reboot): the launcher's debloat keeper (config.xml keeper_*) reconnects
+# to the TV's own adb on 127.0.0.1:5555 about 20 s after each boot and re-disables this list, re-applies the
+# background block and keeps Home. Leave USB debugging on and accept its "Allow USB debugging?" prompt once.
+# Home: launcherx (priority 2) and setupwraith's RecoveryActivity (priority 1) out-rank any third-party HOME,
+# Android resolves Home by priority before the user's choice, and the shell may not disable single
+# components ("Shell cannot change component state"). So launcherx stays enabled and the launcher's
+# HomeKeyService takes KEYCODE_HOME and covers launcherx whenever it comes to the front. Install with
+#   launcher\build-and-install.ps1 -StockLauncher none -InputKeyService -HomeKeyService
+# The script's final "Home resolves to launcherx" check fails here by design; enable the two services
+# (enabled_accessibility_services) by hand if it stops before them.
+# The launcher half is NOT safe here: com.google.android.tungsten.setupwraith comes back enabled at
+# boot, its RecoveryActivity takes Home and system_server crash-loops (TV drops off Wi-Fi) until
+# `pm enable --user 0 com.google.android.apps.tv.launcherx`. Keep launcherx and use Google TV's own
+# "Apps only mode" (Settings > Accounts & sign-in > your account) to drop the ads and recommendations.
+
+# MOKA/Acer ads, demo and tracking
+com.apps.esticker                            # store-demo sticker overlay; Firebase, location, READ_LOGS, starts at boot
+com.apps.esticker3                           # second sticker overlay, WorkManager jobs on boot/network/power
+com.apps.mk.wd                               # "S-Channel": ClickAdActivity / ClickVideoActivity, starts at boot and screen-on
+com.apps.biz.mt                              # TV meeting mode, starts at boot
+com.mk.tv.meeting.service                    # meeting/digital-signage service with an accessibility service, starts at boot
+com.apps.tvmanager                           # "TV Manager" cleaner, Firebase
+com.mk.tv.timeclock                          # world clock app with Firebase messaging
+com.realtek.leanbacklauncher.partnercustomizer  # partner config that injects rows into the Google TV home
+
+# Google extras
+com.google.android.feedback
+com.google.android.play.games
+com.google.android.syncadapters.calendar     # calendar sync, nothing on a TV uses it
+com.google.android.marvin.talkback           # screen reader; re-enable if anyone needs it
+com.google.android.apps.tv.dreamx            # Ambient mode screensaver, ~80 MB; Android's basic clock dream remains
+
+# Google Assistant (by choice; with it off the remote's mic button does nothing)
+com.google.android.katniss
+
+# Screen mirroring apps (by choice; Chromecast built-in, com.google.android.apps.mediashell, stays on)
+com.creative.fastscreen.tv                   # FastCast mirroring, has an Advertisement activity
+com.apps.scast                               # Scast mirroring/signage, bundles the meeting service and an accessibility service
+
+# Stock home. Disable only after the new launcher is installed and set as Home: disable setupwraith
+# first, set-home-activity, then launcherx, set-home-activity again (both claim HOME; launcherx priority 2,
+# setupwraith's RecoveryActivity priority 1, so it takes over if left on).
+# com.google.android.tungsten.setupwraith   # DO NOT: re-enables itself at boot and crash-loops Home (see header)
+# com.google.android.apps.tv.launcherx
+
+# Kept on purpose: com.realtek.tv and the *Input packages (Live TV, HDMI, tuners), com.mk.service.tvmidware
+# and com.mk.tv.systemserver (MOKA core services), com.apps.factory.ui (picture/factory menus),
+# com.apps.bluetoothremote, com.apps.plugins (remote battery), com.apps.smartkey, com.apps.virtualkey,
+# com.mk.tv.fivekey, com.apps.android.globalkeyhandler, com.realtek.android.globalkeyhandler (remote keys),
+# com.apps.ota, com.apps.authota, com.realsil.ota (firmware and remote updates), com.apps.function.audiolink
+# (audio output), com.apps.usbmediaplayer (USB media), com.apps.sys, com.apps.function.gdpr,
+# com.google.android.inputmethod.latin (keyboard), Play Store and Play Services.

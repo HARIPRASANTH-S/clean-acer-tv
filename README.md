@@ -17,6 +17,11 @@
   <a href="https://buymeacoffee.com/gathint"><img src="https://img.shields.io/badge/support-%E2%9D%A4-ff5e8a?style=flat&labelColor=15181e" alt="Support, buy me a coffee"></a>
 </p>
 
+> **This copy: Acer H PRO 55" Google TV (AR55GR2851UDPRO).** Debloated, with the CleanYourTV launcher as
+> Home and a boot-time keeper that re-applies the debloat this firmware undoes at every power-on.
+> Details in [`examples/acer-h-pro-ar55gr2851udpro/debloat.txt`](examples/acer-h-pro-ar55gr2851udpro/debloat.txt);
+> to undo everything, see **[ROLLBACK.md](ROLLBACK.md)**.
+
 Strip the bloatware from any Android TV or Google TV over Wi-Fi, and replace the ad-filled home
 screen with a clean launcher that looks like an Apple TV. **No root, no cable, nothing uninstalled,
 and a one-line restore if you change your mind.**

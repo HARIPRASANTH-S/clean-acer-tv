@@ -186,6 +186,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         inputAction = cfg.inputAction;
         sourcePanelService = cfg.sourcePanelService;
         sourcePanelAction = cfg.sourcePanelAction;
+        // Debloat keeper (config.xml keeper_*): a pass now too, which covers a fresh install and the first prompt.
+        Keeper.schedule(this, false);
 
         root = findViewById(R.id.root);
         root.setBackgroundColor(cfg.backgroundColor);
