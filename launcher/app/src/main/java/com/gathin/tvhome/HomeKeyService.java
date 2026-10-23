@@ -46,9 +46,17 @@ public class HomeKeyService extends AccessibilityService {
     protected boolean onKeyEvent(KeyEvent event) {
         int code = event.getKeyCode();
         if (code != KeyEvent.KEYCODE_ALL_APPS && code != KeyEvent.KEYCODE_HOME) return false;
-        if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) goHome();
+        if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
+            // Held for LONG_PRESS_MS (timed on release: many remotes send no key repeats): close the
+            // apps you opened (Cleaner), then show Home.
+            boolean longPress = event.getEventTime() - event.getDownTime() >= LONG_PRESS_MS;
+            if (longPress && getResources().getBoolean(R.bool.cleaner_enabled)) Cleaner.closeAllAsync(this, null);
+            goHome();
+        }
         return true;
     }
+
+    private static final long LONG_PRESS_MS = 600;
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {

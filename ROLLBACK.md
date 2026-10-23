@@ -11,7 +11,7 @@ firmware UKR1.260308. Factory state recorded 19 Oct 2026, before any change.
 
 | # | Change | Where it lives | Undo |
 |---|---|---|---|
-| 1 | New home screen (CleanYourTV launcher, `com.gathin.tvhome`) | Installed app | Uninstall the app |
+| 1 | New home screen (CleanYourTV launcher, `com.gathin.tvhome`), including the **Close apps** button in the top bar and **hold Home** to close the apps you opened (both force-stop apps over the launcher's adb key) | Installed app | Uninstall the app. To keep the launcher but drop the feature, set `cleaner_enabled` to false in `config.xml` and rebuild |
 | 2 | **Debloat keeper** inside that launcher: after every boot it reconnects to the TV's own adb (127.0.0.1:5555) and re-disables the bloat | Same app, plus its own adb key trusted by the TV | Uninstall the app, then revoke debugging keys |
 | 3 | Two accessibility services from the launcher: Home button and Input button | Settings → secure `enabled_accessibility_services` | Clear the setting (factory: none, `accessibility_enabled=0`) |
 | 4 | 16 apps disabled (ads, demo overlays, TV Manager, meeting mode, mirroring apps, Assistant, TalkBack, Ambient mode, Play Games, Feedback, Calendar sync) | `pm disable-user` | `pm enable` each one; list in [`debloat.txt`](examples/acer-h-pro-ar55gr2851udpro/debloat.txt) (factory: nothing disabled) |

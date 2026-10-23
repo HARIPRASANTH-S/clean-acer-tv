@@ -88,6 +88,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private boolean heroShown;
     private TextView greeting;
     private View btnInputs;
+    /** Close apps pill (Cleaner) and its last scan; cleanupSeq drops results of superseded scans. */
+    private TextView btnCleanup;
+    private TextView cleanupHint;
+    private Cleaner.Result cleanupState;
+    private boolean cleanerBusy;
+    private int cleanupSeq;
     private TextView btnWifi;
     private TextView shamsiDate;
     private boolean shamsi;
@@ -277,6 +283,15 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             open(new Intent(Settings.ACTION_WIFI_SETTINGS));
             return true;
         });
+        btnCleanup = findViewById(R.id.btnCleanup);
+        cleanupHint = findViewById(R.id.cleanupHint);
+        if (getResources().getBoolean(R.bool.cleaner_enabled)) {
+            btnCleanup.setVisibility(View.VISIBLE);
+            btnCleanup.setOnClickListener(v -> closeApps());
+            // Compact (icon and app count) until focused, then the full "Close 2 apps · 460 MB".
+            btnCleanup.setOnFocusChangeListener((v, hasFocus) -> showCleanup());
+            showCleanup();
+        }
         btnSettings.setOnClickListener(v -> open(new Intent(Settings.ACTION_SETTINGS)));
         btnSettings.setOnLongClickListener(v -> {
             if (!moduleCards) return false;   // off: a long press does nothing, as before the feature
@@ -289,13 +304,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         View.OnKeyListener pillKeys = (v, keyCode, event) -> {
             if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
             if (keyCode == KeyEvent.KEYCODE_DPAD_UP) return true;
-            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-                // The left end is Inputs, or Wi-Fi on a box without inputs.
-                return v.getId() == R.id.btnInputs
-                        || (v.getId() == R.id.btnWifi && btnInputs.getVisibility() != View.VISIBLE);
-            }
+            // The left end is the first pill showing: Close apps, Inputs, or Wi-Fi on a box without inputs.
+            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) return v == firstVisiblePill();
             return keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v.getId() == R.id.btnSettings;
         };
+        btnCleanup.setOnKeyListener(pillKeys);
         btnInputs.setOnKeyListener(pillKeys);
         btnWifi.setOnKeyListener(pillKeys);
         btnSettings.setOnKeyListener(pillKeys);
@@ -363,7 +376,72 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         updateGreeting();
         updateWifiLabel();
         updateInputsButton();
+        refreshCleanup();
         handler.postDelayed(minuteTick, MINUTE_MS);
+    }
+
+    private View firstVisiblePill() {
+        for (View p : new View[]{btnCleanup, btnInputs, btnWifi}) {
+            if (p.getVisibility() == View.VISIBLE) return p;
+        }
+        return btnWifi;
+    }
+
+    /** Counts the open apps for the Close apps pill, off the main thread (it goes through adb). */
+    private void refreshCleanup() {
+        if (btnCleanup.getVisibility() != View.VISIBLE || cleanerBusy) return;
+        final int seq = ++cleanupSeq;
+        new Thread(() -> {
+            Cleaner.Result r = Cleaner.scan(getApplicationContext());
+            handler.post(() -> {
+                if (seq != cleanupSeq || cleanerBusy) return; // a newer scan or a close is under way
+                cleanupState = r;
+                showCleanup();
+            });
+        }, "cleaner-scan").start();
+    }
+
+    /**
+     * The pill is a round icon button, bright while apps are open and dimmed when there is nothing to close,
+     * so it never squeezes the date; "Close 4 apps · 386 MB" shows in cleanupHint under it while it has focus.
+     */
+    private void showCleanup() {
+        Cleaner.Result r = cleanupState;
+        boolean known = r != null && r.error == null;
+        boolean any = known && !r.labels.isEmpty();
+        btnCleanup.setText("");
+        int pad = Math.round(10 * density);
+        btnCleanup.setPaddingRelative(pad, btnCleanup.getPaddingTop(), pad, btnCleanup.getPaddingBottom());
+        btnCleanup.setCompoundDrawablePadding(0);
+        btnCleanup.setAlpha(any || !known || cleanerBusy ? 1f : 0.5f);
+
+        String hint = cleanerBusy ? getString(R.string.cleaner_working)
+                : any ? r.summary(this) : getString(known ? R.string.cleaner_idle : R.string.cleaner_label);
+        cleanupHint.setText(hint);
+        boolean show = btnCleanup.hasFocus();
+        if (show) {
+            // Under the pill, left edges aligned (both in root coordinates).
+            btnCleanup.post(() -> {
+                int[] pill = new int[2], rootXY = new int[2];
+                btnCleanup.getLocationInWindow(pill);
+                root.getLocationInWindow(rootXY);
+                cleanupHint.setX(pill[0] - rootXY[0] + 12 * density);
+                cleanupHint.setY(pill[1] - rootXY[1] + btnCleanup.getHeight() + 12 * density);
+            });
+        }
+        cleanupHint.animate().alpha(show ? 1f : 0f).setDuration(150).start();
+    }
+
+    private void closeApps() {
+        if (cleanerBusy) return;
+        cleanerBusy = true;
+        showCleanup();
+        Cleaner.closeAllAsync(this, r -> {
+            cleanerBusy = false;
+            cleanupSeq++;
+            cleanupState = r.error != null ? r : new Cleaner.Result();
+            showCleanup();
+        });
     }
 
     /** Rebuilds the tiles (and the module cards), then puts focus back where it was. */

@@ -25,6 +25,11 @@
             <action android:name="android.intent.action.MAIN" />
             <category android:name="com.gathin.tvhome.category.DOCK_CARD" />
         </intent>
+        <!-- Cleaner: phone-style apps the close-apps pill may stop too. -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
         <!-- HomeKeyService: the other HOME activities it covers up. -->
         <intent>
             <action android:name="android.intent.action.MAIN" />

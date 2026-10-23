@@ -101,4 +101,19 @@
     <!-- Make this launcher Home again if the firmware gives Home back to the stock launcher. -->
     <bool name="keeper_keep_home">true</bool>
     <integer name="keeper_adb_port">5555</integer>
+
+    <!-- Close-apps pill and long press on Home (Cleaner): apps it never closes. This launcher and
+         live_tv_package are always kept; Play Store stays so updates are not cut off. Uses the same
+         adb connection as the keeper. false hides the pill and the long press. -->
+    <bool name="cleaner_enabled">true</bool>
+    <string-array name="cleaner_keep">
+        <item>com.android.tv.settings</item>
+        <item>com.android.vending</item>
+        <!-- Acer/MOKA services that have a tile but are not apps you open: USB media playback and the
+             firmware and remote updaters. -->
+        <item>com.apps.usbmediaplayer</item>
+        <item>com.apps.ota</item>
+        <item>com.apps.authota</item>
+        <item>com.realsil.ota</item>
+    </string-array>
 </resources>

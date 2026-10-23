@@ -26,7 +26,18 @@
     <string name="home_settings_help">Choose a home screen in system settings, then press Home.</string>
     <string name="input_key_service_description">Opens the input switcher when the remote\'s Input button is pressed.</string>
     <string name="home_key_name">Home button</string>
-    <string name="home_key_description">Makes the remote\'s Home button open this launcher.</string>
+    <string name="home_key_description">Makes the remote\'s Home button open this launcher. Hold Home to close the apps you opened.</string>
+    <!-- Close-apps pill (Cleaner): count of open apps and the memory they hold. -->
+    <plurals name="cleaner_pill">
+        <item quantity="one">Close %1$d app · %2$d MB · press OK</item>
+        <item quantity="other">Close %1$d apps · %2$d MB · press OK</item>
+    </plurals>
+    <string name="cleaner_idle">No apps open</string>
+    <string name="cleaner_label">Close apps</string>
+    <string name="cleaner_working">Closing…</string>
+    <string name="cleaner_nothing">No apps to close</string>
+    <string name="cleaner_done">Closed %1$s · %2$d MB freed</string>
+    <string name="cleaner_failed">Couldn\'t close apps: USB debugging must be on</string>
     <string name="card_prompt_title">New card from %1$s</string>
     <string name="card_prompt_body">%1$s can show a card on your home screen. Keeping it hidden leaves the app\'s normal tile as it is.</string>
     <string name="card_prompt_names">The card is named \'%1$s\'. The app is \'%2$s\'.</string>

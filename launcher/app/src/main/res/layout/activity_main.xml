@@ -45,7 +45,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_toStartOf="@+id/topButtons"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="8dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -157,6 +157,14 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/btnCleanup"
+                    style="@style/TopButton"
+                    android:contentDescription="@string/cleaner_label"
+                    android:drawableStart="@drawable/ic_close_apps"
+                    android:visibility="gone"
+                    android:nextFocusDown="@+id/grid" />
+
+                <TextView
                     android:id="@+id/btnInputs"
                     style="@style/TopButton"
                     android:text="@string/inputs"
@@ -202,6 +210,20 @@
                 android:descendantFocusability="afterDescendants" />
         </FrameLayout>
     </LinearLayout>
+
+    <!-- Under the Close apps pill while it has focus ("Close 4 apps · 386 MB"); placed in code, so the
+         pill itself stays compact and never squeezes the date. -->
+    <TextView
+        android:id="@+id/cleanupHint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha="0"
+        android:textColor="#CCFFFFFF"
+        android:textSize="15sp"
+        android:fontFamily="@font/outfit"
+        android:letterSpacing="0.01"
+        android:singleLine="true"
+        android:importantForAccessibility="no" />
 
     <!-- The single floating glass highlight that springs between tiles. -->
     <com.gathin.tvhome.GlassView
